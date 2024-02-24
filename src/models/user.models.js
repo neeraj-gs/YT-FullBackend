@@ -1,4 +1,8 @@
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt';
+
+//direct encryption is not possible so we need ot use Pre Hook - A middlewware that executes just before the data is saved
 
 const userSchema = new mongoose.Schema({
     username:{
