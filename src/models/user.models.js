@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
         lowercase:true,
         trim:true,
     },
-    email:{
+    fullName:{
         type:String,
         required:true,
         trim:true,
@@ -58,8 +58,39 @@ userSchema.pre("save",async function (next){
 })
 
 
+//we can inject any number fo methords and make it better
 userSchema.methods.isPasswordCorrect = async function (password){
-    bcrypt.compare(password,this.password)
+    return await bcrypt.compare(password,this.password) //cryptography 
+    //returns true or false , we can 
+}
+
+
+userSchema.methods.generateAccessToken = async function(){
+    return jwt.sign(
+        {
+            _id:this._id, //already all mehotrds are stored in database
+            email:this.email,
+            username:this.username,
+            fullName:this.fullName
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            expiresIn:process.env.ACCESS_TOKEN_EXPIRY
+        }
+    )
+}
+
+
+userSchema.methods.generateRefreshToken = async function(){
+    return jwt.sign(
+        {
+            _id:this._id, //already all mehotrds are stored in database
+        },
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+            expiresIn:process.env.REFRESH_TOKEN_EXPIRY
+        }
+    )
 }
 
 export const User = mongoose.model('User',userSchema);
