@@ -5,4 +5,11 @@ dotenv.config({
     path:'./env'
 })
 
-connectDb();
+//Asynchronous mehtord on completion returns a promise
+connectDb().then(()=>{
+    app.listen(process.env.PORT || 8000,()=>{
+        console.log(`Server Running on http://localhost:${process.env.PORT}`);
+    })
+}).catch((err)=>{
+    console.error('Mongo DB Connection Error ', err);
+})
