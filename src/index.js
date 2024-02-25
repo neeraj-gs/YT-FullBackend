@@ -3,7 +3,7 @@ import connectDb from "./db/index.js";
 import app from './app.js';
 
 dotenv.config({
-    path:'./env'
+    path:'./.env'
 })
 
 //Asynchronous mehtord on completion returns a promise
@@ -14,3 +14,5 @@ connectDb().then(()=>{
 }).catch((err)=>{
     console.error('Mongo DB Connection Error ', err);
 })
+
+//if fiels need to be sent from postman we need to use form-data
