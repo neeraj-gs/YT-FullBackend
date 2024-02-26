@@ -169,6 +169,25 @@ const logoutUser = asyncHandler(async (req, res) => {
     //we use middleware when we cant get user 
 
     //by adding cookie parser we can access cookies and access it in req and res
+    await User.findByIdAndUpdate(
+        req.user._id, //find
+        {
+            //updation
+            $set:{
+                refreshToken: undefined
+            }
+        },
+        {
+            new: true, //returned response we get new value
+        }
+    )
+
+    const options = {
+        httpOnly: true, 
+        secure:true,
+    }
+
+    return res.status(200).clearCookie("accessToken",options).clearCookie("refreshToken",options).json(new ApiResponse(200,{},"User Logged Out Successfully"))
 
 
 })
@@ -186,4 +205,4 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 
 
-export {registerUser,loginUser}
+export {registerUser,loginUser,logoutUser}
