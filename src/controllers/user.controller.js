@@ -7,6 +7,37 @@ import {uploadOnCloudinary} from '../utils/cloudnary.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { response } from 'express'
 
+
+
+const generateAccessAndRefreshTokens = async(userId) =>{
+    try {
+        const user = await User.findById(userId)
+        const accesst = user.generateAcccessToken() 
+        const refresht = user.generateRefreshToken()
+
+        user.refreshToken = refresht; //save refreshtoken in db
+        await user.save({validateBeforeSave:false}) //we need passwd also when entering into db
+        //dont add validation , just create it once
+
+        return {accesst, refresht};
+
+
+
+        
+    } catch (error) {
+        throw new ApiError(500,"Somethign went wrong while generating access token")
+    }
+}
+
+
+
+
+
+
+
+
+
+
 const registerUser = asyncHandler( async (req,res)=>{
     //register user
     //get user details from frontend[postman] fields depend on model
@@ -81,4 +112,71 @@ const registerUser = asyncHandler( async (req,res)=>{
 
 })
 
-export {registerUser}
+
+
+const loginUser = asyncHandler(async(req,res)=>{
+    const {email,username,password} = req.body;
+    if(!username || !email){
+        throw new ApiError(400,"username or password is required")
+    }
+
+    const user = User.findOne({
+        $or : [{username},{email}] //monog  db operator 
+    })
+
+    if(!user){
+        throw new ApiError(404,"User Does not Exist , Plewase Sign Up")
+    }
+
+    //User is a mongo db object, and methords created in models, are available in user instance
+    const isPasswdValid = await user.isPasswordCorrect(password)
+     
+    if(!isPasswdValid){
+        throw new ApiError(401,"Invalid Credentials")
+    }
+
+    //access and refresh tokens createions
+    const {accessToken,refreshToken} = await generateAccessAndRefreshTokens(user._id);
+
+    //once we get acces and refresh token we need to send it in cookies 
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+
+    //send cookies
+    const options = {
+        httpOnly: true, 
+        secure:true, //cookies by default anyone can modify on frontend, when true then it is only modified by server
+    }
+
+    return response.status(200).cookie("accessToken",accessToken,options).cookie("refreshToken",refreshToken,options).json(
+        new ApiResponse(200,{
+            user: loggedInUser,accessToken,refreshToken
+        },
+        "User LOgged in Successfully"
+        )
+    )
+    //can keep addding any number of cookie by chaning it andd passingoptions make it non dhangable in frontend 
+
+
+
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export {registerUser,loginUser}
