@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { loginUser, logoutUser, registerUser } from '../controllers/user.controller.js';
+import { loginUser, logoutUser, refreshAccessToken, registerUser } from '../controllers/user.controller.js';
 import {upload} from '../middlewares/multer.js'
 import {verifyJWT} from '../middlewares/auth.middleware.js'
 
@@ -29,6 +29,7 @@ router.route("/login").post(loginUser)
 router.route("/logout").post(verifyJWT,logoutUser)
 //when we have a middleware then we get a secured route , if not present then we will re route them back
 
+router.route("/refresh-token").post(refreshAccessToken)
 
 
 

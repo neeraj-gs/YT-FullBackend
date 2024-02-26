@@ -1,10 +1,10 @@
-import { jwt } from "jsonwebtoken";
-import { ApiError } from "../utils/ApiError";
-import { asyncHandler } from "../utils/asyncHandler";
-import { User } from "../models/user.models";
+import jwt  from "jsonwebtoken";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { User } from "../models/user.models.js";
 
 //just verifies if user is presetn or not 
-export const verifyJWT = asyncHandler(async(req,res,next)=>{
+export const verifyJWT = asyncHandler(async(req,_,next)=>{ //when res is not used we can use _
 
     try {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","")
