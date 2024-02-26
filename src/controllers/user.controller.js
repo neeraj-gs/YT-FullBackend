@@ -164,7 +164,14 @@ const loginUser = asyncHandler(async(req,res)=>{
 
 
 
+const logoutUser = asyncHandler(async (req, res) => {
+    //logout, remove cookies, tokens
+    //we use middleware when we cant get user 
 
+    //by adding cookie parser we can access cookies and access it in req and res
+
+
+})
 
 
 
